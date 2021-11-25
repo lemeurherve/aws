@@ -1,4 +1,4 @@
-module "iam_assumable_role_admin" {
+module "iam_assumable_role_cluster_autoscaler" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version                       = "3.6.0"
   create_role                   = true
