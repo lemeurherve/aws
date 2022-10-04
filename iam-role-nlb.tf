@@ -9,9 +9,13 @@ module "eks_iam_role_nlb" {
 }
 
 resource "aws_iam_policy" "cluster_nlb" {
-  name_prefix = "cluster-nlb"
-  description = "EKS cluster-nlb policy for cluster ${module.eks-public.cluster_id}"
+  name        = "AWSLoadBalancerControllerIAMPolicy"
+  description = "EKS cluster-nlb policy"
   # JSON from https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.3/docs/install/iam_policy.json
   # Cf https://docs.aws.amazon.com/eks/latest/userguide/aws-load-balancer-controller.html
   policy = file("iam-nlb-policy.json") #tfsec:ignore:aws-iam-no-policy-wildcards
 }
+
+# data "aws_iam_policy" "cluster_nlb" {
+#   name = aws_iam_policy.cluster_nlb.arn
+# }
