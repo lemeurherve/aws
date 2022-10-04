@@ -11,7 +11,7 @@ module "eks-public" {
   cluster_name = local.public_cluster_name
   # From https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
   cluster_version = var.kubernetes_version
-  subnet_ids      = module.vpc.private_subnets
+  subnet_ids      = module.vpc.public_subnets
   # Required to allow EKS service accounts to authenticate to AWS API through OIDC (and assume IAM roles)
   # useful for autoscaler, EKS addons and any AWS APi usage
   enable_irsa = true
@@ -63,6 +63,8 @@ module "eks-public" {
       tags = {
         "k8s.io/cluster-autoscaler/enabled" = false # No autoscaling for these 2 machines
       },
+      # # Add the NLB policy role (need to be created first)
+      # iam_role_additional_policies = ["arn:aws:iam::${local.aws_account_id}:policy/AWSLoadBalancerControllerIAMPolicy"]
     },
   }
 
@@ -85,13 +87,13 @@ module "eks-public" {
   aws_auth_users = [
     # User impersonated when using the CloudBees IAM Accounts (e.g. humans)
     {
-      userarn  = "arn:aws:iam::200564066411:role/infra-admin",
+      userarn  = "arn:aws:iam::${local.aws_account_id}:role/infra-admin",
       username = "infra-admin",
       groups   = ["system:masters"],
     },
     # User defined in infra.ci.jenkins.io system to operate terraform
     {
-      userarn  = "arn:aws:iam::200564066411:user/production-terraform",
+      userarn  = "arn:aws:iam::${local.aws_account_id}:user/production-terraform",
       username = "production-terraform",
       groups   = ["system:masters"],
     },
@@ -104,7 +106,7 @@ module "eks-public" {
   ]
 
   aws_auth_accounts = [
-    "200564066411",
+    local.aws_account_id,
   ]
 }
 
